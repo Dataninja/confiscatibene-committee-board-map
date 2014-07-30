@@ -138,7 +138,7 @@
                 /*** Funzione di ricerca del luogo ***/
                 var osmGeocoder = new L.Control.OSMGeocoder(
                     { 
-                        collapsed: false, 
+                        collapsed: true, 
                         position: 'topleft',
                         text: 'Cerca luogo'
                     }
@@ -199,20 +199,20 @@
                 function joinData(territorio) {
                     var numGeo = geo[territorio].resource.features.length,
                         numData = data[territorio].resource.result.records.length,
-                        noData = true;
-                    console.log(numGeo, geo, numData, data);
+                        noData = true, numOkData = 0, numNoData = 0;
                     for (var i=0; i<geo[territorio].resource.features.length; i++) {
-                        console.log(i, numGeo);
                         var geoID = geo[territorio].resource.features[i].properties[geo[territorio].id];
                         for (var j=0; j<numData; j++) {
                             var dataID = data[territorio].resource.result.records[j][data[territorio].id];
                             if (dataID == geoID) {
+                                numOkData++;
                                 geo[territorio].resource.features[i].properties.data = data[territorio].resource.result.records[j];
                                 noData = false;
                                 break;
                             }
                         }
                         if (noData) {
+                            numNoData++;
                             geo[territorio].resource.features.splice(i,1);
                             i--;
                         } else {
@@ -226,16 +226,37 @@
                     d3.select("nav#menu-ui a#"+territorio).classed("active", true);
                     geojson.clearLayers();
                     if (!geo[territorio].resource || !data[territorio].resource) {
+                        var limit = 2000;
         		        map.spin(true);
                         queue()
                             .defer(d3.json, 'geo/'+territorio+'.js') // Geojson
-                            .defer(d3.json, apiPath + '?resource_id=' + data[territorio].resourceId) // Dati
+                            .defer(d3.json, apiPath + '?resource_id=' + data[territorio].resourceId + '&limit=' + limit) // Dati
                             .await(function(err, geojs, datajs) {
-			                    map.spin(false);
                                 geo[territorio].resource = geojs;
                                 data[territorio].resource = datajs;
-                                joinData(territorio);
-	    	    	            geojson.addData(geo[territorio].resource);
+                                var allData = [datajs.result.records],
+                                    div = parseInt(datajs.result.total) / datajs.result.limit;
+                                if (div > 1) { // Paginazione dei risultati
+                                    var q = queue();
+                                    limit = datajs.result.limit;
+                                    for (var n=1; n < div; n++) {
+                                        q.defer(d3.json, apiPath + '?resource_id=' + data[territorio].resourceId + '&limit=' + limit + '&offset=' + (n*limit));
+                                    }
+                                    q.await(function() {
+                                        console.log(arguments);
+                                        for (var i=1; i<arguments.length; i++) {
+                                            allData.push(arguments[i].result.records);
+                                        }
+                                        data[territorio].resource.result.records = d3.merge(allData);
+			                            map.spin(false);
+                                        joinData(territorio);
+	            	    	            geojson.addData(geo[territorio].resource);
+                                    });
+                                } else {
+    			                    map.spin(false);
+                                    joinData(territorio);
+	        	    	            geojson.addData(geo[territorio].resource);
+                                }
                             });
                     } else {
 		    	        geojson.addData(geo[territorio].resource);

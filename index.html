@@ -47,7 +47,7 @@
         		};
                 info.update = function (props) {
                     var that = this;
-                    this._div.innerHTML = '<h4>Beni confiscati</h4>';
+                    this._div.innerHTML = '<img id="close-cross" src="img/close.png" /><h4>Beni confiscati</h4>';
                     if (props) {
                         this._div.innerHTML += '<b>' + 
                             '<span class="rossobc">' + 
@@ -111,9 +111,14 @@
                                 }
                             });
                         });
-                        console.log(imPath, azPath);
+                        d3.select(this._div).select("img#close-cross")
+                            .style("display", "block")
+                            .on("click", function() {
+                                info.update();
+                            });
                     } else {
                         this._div.innerHTML += 'Mouse su un poligono';
+                        d3.select(this._div).select("img#close-cross").style("display", "none");
                     }
     		    };
                 info.addTo(map);
@@ -254,6 +259,7 @@
                     })
                     .text(function(d) { return d; });
 
+                // Join tra dati e territori
                 function joinData(territorio) {
                     var numGeo = geo[territorio].resource.features.length,
                         numData = data[territorio].resource.result.records.length,

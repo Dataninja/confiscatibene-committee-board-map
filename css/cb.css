@@ -9,12 +9,15 @@ html, body, #map {
 .leaflet-sidebar {
   z-index: 1020;
 }
+
 .leaflet-sidebar > .leaflet-control {
   padding: 0px;
 }
+
 .leaflet-sidebar .close {
   display: none;
 }
+
 .leaflet-control-layers label {
   font-weight: normal;
   margin-bottom: 0px;
@@ -131,6 +134,11 @@ html, body, #map {
 .info h4 {
 	margin: 0 0 5px;
 	color: #777;
+}
+.info img#close-cross {
+    width: 25px;
+    float: right;
+    cursor: pointer;
 }
 
 .legend {

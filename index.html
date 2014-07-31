@@ -200,6 +200,7 @@
                     .attr("href", "#")
                     .attr("id", function(d) { return d; })
                     .on("click", function(d) {
+	    		        info.update();
                         loadData(d);
                     })
                     .text(function(d) { return d; });

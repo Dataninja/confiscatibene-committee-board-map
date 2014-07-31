@@ -13,9 +13,13 @@
                     "js/spin-control/leaflet.spin.js", "js/spin-control/spin.min.js",
                     "js/osm-geocoder/Control.OSMGeocoder.js", "js/osm-geocoder/Control.OSMGeocoder.css"
                 ])
+                .load("js/agnes/agnes.js")
+                .load("js/filesaver/Blob.js", "js/filesaver/FileSaver.js")
                 .load("css/cb.css");
 
             head.ready(function() {
+                var apiPath = '/api/action/datastore/search.json';
+                
                 /*** Inizializzazione della mappa ***/
                 var map = L.map('map');
         	    var southWest = L.latLng(37.118,6.877),
@@ -41,8 +45,9 @@
 		        	this.update();
 			        return this._div;
         		};
-    	    	info.update = function (props) {
-                    this._div.innerHTML = '<h4>Beni immobili confiscati</h4>';
+                info.update = function (props) {
+                    var that = this;
+                    this._div.innerHTML = '<h4>Beni confiscati</h4>';
                     if (props) {
                         this._div.innerHTML += '<b>' + 
                             '<span class="rossobc">' + 
@@ -62,6 +67,51 @@
                                     '<br />';
                             }
                         }
+                        this._div.innerHTML += '<br />Scarica l\'elenco degli <a href="#" id="a-immobili">immobili</a> e delle <a href="#" id="a-aziende">aziende</a>.';
+                        var delim = agnes.rowDelimiter(),
+                            today = new Date(),
+                            stoday = d3.time.format('%Y%m%d')(today),
+                            filterKey = data[d3.select("nav#menu-ui a.active").attr("id")].id,
+                            filterValue = props[geo[d3.select("nav#menu-ui a.active").attr("id")].id],
+                            imResId = 'e5b4d63a-e1e8-40a3-acec-1d351f03ee56',
+                            azResId = '8b7e12f1-6484-47f0-9cf6-88b446297dbc';
+                        var imPath = apiPath + 
+                            "?resource_id=" + imResId + "&limit=1000&filters[" + 
+                            filterKey + 
+                            "]=" + 
+                            filterValue;
+                        d3.select('a#a-immobili').on("click", function() {
+                            var that = this;
+                            d3.json(imPath, function(err,res) {
+                                if (res.result.records.length > 0) {
+                                    var csv = agnes.jsonToCsv(res.result.records, delim),
+                                        blob = new Blob([csv], {type: "text/csv;charset=utf-8"}),
+                                        filename = stoday + '_confiscatibene_immobili_' + filterKey + '-' + filterValue + '.csv';
+                                    saveAs(blob, filename);
+                                } else {
+                                    alert("No data!");
+                                }
+                            });
+                        });
+                        var azPath = apiPath + 
+                            "?resource_id=i" + azResId + "&limit=1000&filters[" + 
+                            filterKey + 
+                            "]=" + 
+                            filterValue;
+                        d3.select('a#a-aziende').on("click", function() {
+                            var that = this;
+                            d3.json(imPath, function(err,res) {
+                                if (res.result.records.length > 0) {
+                                    var csv = agnes.jsonToCsv(res.result.records, delim),
+                                        blob = new Blob([csv], {type: "text/csv;charset=utf-8"}),
+                                        filename = stoday + '_confiscatibene_aziende_' + filterKey + '-' + filterValue + '.csv';
+                                    saveAs(blob, filename);
+                                } else {
+                                    alert("No data!");
+                                }
+                            });
+                        });
+                        console.log(imPath, azPath);
                     } else {
                         this._div.innerHTML += 'Mouse su un poligono';
                     }
@@ -189,8 +239,7 @@
                         'comuni': { id: 'IdComuneISTAT', resourceId: '69b2565e-0332-422f-ad57-b11491e33b08', resource: null },
                         'province': { id: 'IdProvinciaISTAT', resourceId: 'c18fa1ca-971f-4cfa-92e9-869785260dec', resource: null },
                         'regioni': { id: 'IdRegioneISTAT', resourceId: 'e2f0c989-929f-4e4d-87e2-097140f8880f', resource: null }
-                    },
-                    apiPath = '/api/action/datastore/search.json';
+                    };
 
                 // Selettore dei livelli
                 d3.select("nav#menu-ui").selectAll("a")

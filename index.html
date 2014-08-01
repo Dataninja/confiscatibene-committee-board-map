@@ -8,6 +8,8 @@
         <script type="text/javascript">
             head.load("http://d3js.org/queue.v1.min.js")
                 .load("http://d3js.org/d3.v3.min.js")
+                .load("js/geostats/lib/geostats.min.js")
+                .load("js/colorbrewer/colorbrewer.js")
                 .load([
                     "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js", "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css",
                     "js/spin-control/leaflet.spin.js", "js/spin-control/spin.min.js",
@@ -49,9 +51,17 @@
                     var that = this;
                     this._div.innerHTML = '<img id="close-cross" src="img/close.png" /><h4>Beni confiscati</h4>';
                     if (props) {
+                        var delim = agnes.rowDelimiter(),
+                            today = new Date(),
+                            stoday = d3.time.format('%Y%m%d')(today),
+                            territorio = d3.select("nav#menu-ui a.active").attr("id"),
+                            filterKey = data[territorio].id,
+                            filterValue = props[geo[territorio].id],
+                            imResId = 'e5b4d63a-e1e8-40a3-acec-1d351f03ee56',
+                            azResId = '8b7e12f1-6484-47f0-9cf6-88b446297dbc';
                         this._div.innerHTML += '<b>' + 
                             '<span class="rossobc">' + 
-                            props.NOME + 
+                            props[geo[territorio].name] + 
                             '</span>' + 
                             '</b>' + 
                             '<br /><br />';
@@ -68,13 +78,6 @@
                             }
                         }
                         this._div.innerHTML += '<br />Scarica l\'elenco degli <a href="#" id="a-immobili">immobili</a> e delle <a href="#" id="a-aziende">aziende</a>.';
-                        var delim = agnes.rowDelimiter(),
-                            today = new Date(),
-                            stoday = d3.time.format('%Y%m%d')(today),
-                            filterKey = data[d3.select("nav#menu-ui a.active").attr("id")].id,
-                            filterValue = props[geo[d3.select("nav#menu-ui a.active").attr("id")].id],
-                            imResId = 'e5b4d63a-e1e8-40a3-acec-1d351f03ee56',
-                            azResId = '8b7e12f1-6484-47f0-9cf6-88b446297dbc';
                         var imPath = apiPath + 
                             "?resource_id=" + imResId + "&limit=1000&filters[" + 
                             filterKey + 
@@ -135,24 +138,22 @@
                 /*** ***/
 
                 /*** Stile dei livelli ***/
-	    	    function getColor(d) {
-        			return d > 256 ? '#BD0026' :
-	        		d > 162  ? '#DA2122' :
-		        	d > 84  ? '#F14624' :
-			        d > 45  ? '#F97534' :
-    			    d > 26   ? '#FD9F45' :
-    	    		d > 13   ? '#FDC357' :
-	    	    	d > 5   ? '#FEE180' :
-		    	    '#FFFFB2';
-    		    }
+                function getColor(d, bins) {
+                    for (var i=1; i<bins.length; i++) {
+                        if (d <= bins[i]) {
+                            return colorbrewer.Reds[bins.length-1][i-1];
+                        }
+                    }
+                }
 
         		function style(feature) {
+                    var territorio = d3.select("nav#menu-ui a.active").attr("id");
 	        		return {
 		        		weight: 0.3,
 			        	opacity: 1,
 				        color: 'white',
     				    fillOpacity: 0.7,
-    	    			fillColor: getColor(parseInt(feature.properties.data["Totale beni"]))
+    	    			fillColor: getColor(parseInt(feature.properties.data[data[territorio].binCol]), data[territorio].bins)
 		    	    };
         		}
 
@@ -214,36 +215,30 @@
                 /*** Legenda ***/
     		    var legend = L.control({position: 'bottomleft'});
     	    	legend.onAdd = function (map) {
-        			var div = L.DomUtil.create('div', 'info legend'),
-	            		grades = [1, 5, 13, 26, 45, 84, 162, 256],
-			            labels = [],
-        		    	from, to;
-
-    		    	for (var i = 0; i < grades.length; i++) {
-	    		    	from = grades[i];
-		    		    to = grades[i + 1];
-    		    		labels.push(
-                            '<i style="background:' + 
-                            getColor(from + 1) + '"></i> ' + 
-                            from + (to ? '&ndash;' + to : '+'));
+                    this._div = L.DomUtil.create('div', 'info legend');
+                    this._div.innerHTML = '<h4>Legenda</h4>';
+			        return this._div;
+                };
+                legend.update = function(territorio) {
+                    var grades = data[territorio].ranges;
+                    this._div.innerHTML = '<h4>Legenda</h4>';
+                    for (var i=0; i<grades.length; i++) {
+                        this._div.innerHTML += '<i style="background:' + colorbrewer.Reds[grades.length][i] + '"></i> ' + grades[i] + '<br />';
     			    }
-
-    	    		div.innerHTML = labels.join('<br>');
-	    	    	return div;
     	    	};
                 legend.addTo(map);
                 /*** ***/
 
                 /*** Gestione dei dati ***/
                 var geo = {
-                        'comuni': { id: 'PRO_COM', resource: null },
-                        'province': { id: 'COD_PRO', resource: null },
-                        'regioni': { id: 'COD_REG', resource: null }
+                        'comuni': { id: 'PRO_COM', name: 'NOME', resource: null },
+                        'province': { id: 'COD_PRO', name: 'NOME', resource: null },
+                        'regioni': { id: 'COD_REG', name: 'NOME', resource: null }
                     },
                     data = {
-                        'comuni': { id: 'IdComuneISTAT', resourceId: '69b2565e-0332-422f-ad57-b11491e33b08', resource: null },
-                        'province': { id: 'IdProvinciaISTAT', resourceId: 'c18fa1ca-971f-4cfa-92e9-869785260dec', resource: null },
-                        'regioni': { id: 'IdRegioneISTAT', resourceId: 'e2f0c989-929f-4e4d-87e2-097140f8880f', resource: null }
+                        'comuni': { id: 'IdComuneISTAT', resourceId: '69b2565e-0332-422f-ad57-b11491e33b08', resource: null, binCol: 'Totale beni', bins: [], ranges: [] },
+                        'province': { id: 'IdProvinciaISTAT', resourceId: 'c18fa1ca-971f-4cfa-92e9-869785260dec', resource: null, binCol: 'Totale beni', bins: [], ranges: [] },
+                        'regioni': { id: 'IdRegioneISTAT', resourceId: 'e2f0c989-929f-4e4d-87e2-097140f8880f', resource: null, binCol: 'Totale beni', bins: [], ranges: [] }
                     };
 
                 // Selettore dei livelli
@@ -285,6 +280,15 @@
                     }
                 }
 
+                // Binning della distribuzione dei dati
+                function binData(territorio) {
+                    var serie = data[territorio].resource.result.records.map(function(el) { return parseInt(el[data[territorio].binCol]); });
+                    var gs = new geostats(serie);
+                    data[territorio].bins = gs.getJenks(7);
+                    data[territorio].ranges = gs.ranges;
+                    legend.update(territorio);
+                }
+
                 function loadData(territorio) {
                     d3.selectAll("nav#menu-ui a").classed("active", false);
                     d3.select("nav#menu-ui a#"+territorio).classed("active", true);
@@ -307,18 +311,19 @@
                                         q.defer(d3.json, apiPath + '?resource_id=' + data[territorio].resourceId + '&limit=' + limit + '&offset=' + (n*limit));
                                     }
                                     q.await(function() {
-                                        console.log(arguments);
                                         for (var i=1; i<arguments.length; i++) {
                                             allData.push(arguments[i].result.records);
                                         }
                                         data[territorio].resource.result.records = d3.merge(allData);
 			                            map.spin(false);
                                         joinData(territorio);
+                                        binData(territorio);
 	            	    	            geojson.addData(geo[territorio].resource);
                                     });
                                 } else {
     			                    map.spin(false);
                                     joinData(territorio);
+                                    binData(territorio);
 	        	    	            geojson.addData(geo[territorio].resource);
                                 }
                             });

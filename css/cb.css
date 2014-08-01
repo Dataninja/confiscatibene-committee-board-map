@@ -122,10 +122,24 @@ html, body, #map {
   height:50px;
 }
 
+#buttons {
+    margin-right: 145px;
+}
+#buttons > * {
+    margin-left: 5px !important;
+    margin-right: 5px !important;
+}
+.fb-like {
+    bottom: 6px;
+}
+#___plusone_0 {
+    position: relative;
+    bottom: 2px;
+}
 
 .info {
 	padding: 6px 8px;
-	font: 10px/12px Arial, Helvetica, sans-serif;
+	font: 12px/14px Arial, Helvetica, sans-serif;
 	background: white;
 	background: rgba(255,255,255,0.8);
 	box-shadow: 0 0 15px rgba(0,0,0,0.2);
@@ -140,12 +154,26 @@ html, body, #map {
 	color: #777;
 }
 .info img#close-cross {
-    width: 25px;
+    width: 20px;
     position: absolute;
     right: 12px;
     top: 12px;
     cursor: pointer;
 }
+
+.info table th.rossobc > span {
+    display: inline-block;
+    vertical-align: middle;
+}
+#ssb {
+    margin-left: 20px;
+    margin-right: 25px;
+}
+#ssb > img {
+    width: 20px;
+    cursor: pointer;
+}
+
 #logo {
     position: relative;
     bottom: 64px;

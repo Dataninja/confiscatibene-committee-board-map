@@ -51,7 +51,6 @@
                     var that = this;
                     this._div.innerHTML = '<img id="close-cross" src="img/close.png" />';
                     if (props) {
-                        console.log(props);
                         var delim = agnes.rowDelimiter(),
                             today = new Date(),
                             stoday = d3.time.format('%Y%m%d')(today),
@@ -60,11 +59,20 @@
                             filterValue = props[geo[territorio].id],
                             imResId = 'e5b4d63a-e1e8-40a3-acec-1d351f03ee56',
                             azResId = '8b7e12f1-6484-47f0-9cf6-88b446297dbc';
-                        
+
+                        var buttons = [
+                            '<img src="img/twitter.png" id="ssb-twitter">',
+                            '<img src="img/facebook.png" id="ssb-facebook">',
+                            '<img src="img/gplus.png" id="ssb-gplus">',
+                            '<img src="img/linkedin.png" id="ssb-linkedin">',
+                            '<img src="img/email.png" id="ssb-email">'
+                        ];
+
                         var table = '<table class="zebra">' + 
                             '<thead>' + 
                             '<tr><th colspan="2" class="rossobc">' +
-                            props[geo[territorio].name] + 
+                            '<span>' + props[geo[territorio].name] + '</span>' + 
+                            '<span id="ssb">' + buttons.join(" ") + '</span>' +
                             '</th></tr>' + 
                             '</thead>' + 
                             '<tfoot>' + 
@@ -145,6 +153,23 @@
                     return img;
                 };
                 logo.addTo(map);
+                /*** ***/
+
+                /*** Pulsanti di condivisione ***/
+                var share = L.control({position: 'topright'});
+                share.onAdd = function(map) {
+                    var div = L.DomUtil.create('div','share');
+                    div.setAttribute('id','buttons');
+                    var twitter = '<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://confiscatibene.it/it/mappe/" data-via="confiscatibene" data-lang="it" data-related="confiscatibene" data-hashtags="confiscatibene" data-count="vertical">Tweet</a>';
+                    var facebook = '<div class="fb-like" data-href="http://confiscatibene.it/it/mappe/" data-layout="box_count" data-action="like" data-show-faces="false" data-share="false"></div>';
+                    var gplus = '<div class="g-plusone" data-size="tall" data-href="http://confiscatibene.it/it/mappe/" data-annotation="bubble"></div>';
+                    div.innerHTML = twitter + facebook + gplus;
+                    head.load("https://platform.twitter.com/widgets.js")
+                        .load("http://connect.facebook.net/it_IT/sdk.js#xfbml=1&appId=470290923072583&version=v2.0") // appID di Dataninja
+                        .load("https://apis.google.com/js/plusone.js");
+                    return div;
+                };
+                share.addTo(map);
                 /*** ***/
 
                 /*** Creazione del menù dei livelli ***/
@@ -366,6 +391,7 @@
         </script>
     </head>
     <body>
+        <div id="fb-root"></div>
         <div id="map"></div>
         <a href="https://github.com/jenkin/confiscatibene-choropleth"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
     </body>

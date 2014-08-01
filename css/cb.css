@@ -130,6 +130,10 @@ html, body, #map {
 	background: rgba(255,255,255,0.8);
 	box-shadow: 0 0 15px rgba(0,0,0,0.2);
 	border-radius: 5px;
+    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 350px;
 }
 .info h4 {
 	margin: 0 0 5px;
@@ -137,7 +141,9 @@ html, body, #map {
 }
 .info img#close-cross {
     width: 25px;
-    float: right;
+    position: absolute;
+    right: 12px;
+    top: 12px;
     cursor: pointer;
 }
 #logo {

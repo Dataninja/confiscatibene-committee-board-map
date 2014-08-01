@@ -17,7 +17,7 @@
                 ])
                 .load("js/agnes/agnes.js")
                 .load("js/filesaver/Blob.js", "js/filesaver/FileSaver.js")
-                .load("css/cb.css");
+                .load("css/cb.css", "css/table.css");
 
             head.ready(function() {
                 var apiPath = '/api/action/datastore/search.json';
@@ -49,8 +49,9 @@
         		};
                 info.update = function (props) {
                     var that = this;
-                    this._div.innerHTML = '<img id="close-cross" src="img/close.png" /><h4>Beni confiscati</h4>';
+                    this._div.innerHTML = '<img id="close-cross" src="img/close.png" />';
                     if (props) {
+                        console.log(props);
                         var delim = agnes.rowDelimiter(),
                             today = new Date(),
                             stoday = d3.time.format('%Y%m%d')(today),
@@ -59,25 +60,33 @@
                             filterValue = props[geo[territorio].id],
                             imResId = 'e5b4d63a-e1e8-40a3-acec-1d351f03ee56',
                             azResId = '8b7e12f1-6484-47f0-9cf6-88b446297dbc';
-                        this._div.innerHTML += '<b>' + 
-                            '<span class="rossobc">' + 
+                        
+                        var table = '<table class="zebra">' + 
+                            '<thead>' + 
+                            '<tr><th colspan="2" class="rossobc">' +
                             props[geo[territorio].name] + 
-                            '</span>' + 
-                            '</b>' + 
-                            '<br /><br />';
+                            '</th></tr>' + 
+                            '</thead>' + 
+                            '<tfoot>' + 
+                            '<tr><td colspan="2">' + 
+                            'Scarica l\'elenco degli <a href="#" id="a-immobili">immobili</a> e delle <a href="#" id="a-aziende">aziende</a>.' + 
+                            '</td></tr>' + 
+                            '</tfoot>' + 
+                            '<tbody>';
+
                         for (var k in props.data) {
-                            if (props.data.hasOwnProperty(k) && props.data[k] != '0') {
-                                var value = parseInt(props.data[k]);
-                                this._div.innerHTML += '<b>' + 
-                                    k +
-                                    '</b>: ' + 
-                                    '<em>' + 
-                                    (isNaN(value) ? props.data[k] : value) + 
-                                    '</em>'  + 
-                                    '<br />';
+                            if (props.data.hasOwnProperty(k) && props.data[k] != '0' && k.charAt(0) == k.charAt(0).toUpperCase()) {
+                                table += '<tr>' + 
+                                    '<td>' + k + '</td>' +
+                                    '<td>' + (parseInt(props.data[k]) || props.data[k]) + '</td>' + 
+                                    '</tr>';
                             }
                         }
-                        this._div.innerHTML += '<br />Scarica l\'elenco degli <a href="#" id="a-immobili">immobili</a> e delle <a href="#" id="a-aziende">aziende</a>.';
+
+                        table += '</tbody></table>';
+
+                        this._div.innerHTML += table;
+
                         var imPath = apiPath + 
                             "?resource_id=" + imResId + "&limit=1000&filters[" + 
                             filterKey + 

@@ -140,7 +140,12 @@ html, body, #map {
     float: right;
     cursor: pointer;
 }
-
+#logo {
+    position: relative;
+    bottom: 64px;
+    left: 116px;
+    height: 55px;
+}
 .legend {
 	text-align: left;
 	line-height: 18px;
@@ -155,12 +160,14 @@ html, body, #map {
 }
 .leaflet-control-geocoder {
 	position:relative;
-	bottom:124px;left:116px;
+	bottom:190px;
+    left:264px;
 }
 .menu-ui {
 	background:#fff;
 	position:relative;
-	bottom:66px;left:36px;
+	bottom:132px;
+    left:36px;
 	z-index:1;
 	border-radius:3px;
 	width:70px;

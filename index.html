@@ -127,6 +127,17 @@
                 info.addTo(map);
                 /*** ***/
 
+                /*** Logo ***/
+                var logo = L.control({position: 'topleft'});
+                logo.onAdd = function(map) {
+                    var img = L.DomUtil.create('img');
+                    img.setAttribute('id','logo');
+                    img.setAttribute('src','img/logocb.png');
+                    return img;
+                };
+                logo.addTo(map);
+                /*** ***/
+
                 /*** Creazione del menù dei livelli ***/
                 var menu = L.control({position: 'topleft'});
                 menu.onAdd = function(map) {
@@ -204,9 +215,10 @@
                 /*** Funzione di ricerca del luogo ***/
                 var osmGeocoder = new L.Control.OSMGeocoder(
                     { 
-                        collapsed: false, 
+                        collapsed: true, 
                         position: 'topleft',
-                        text: 'Cerca luogo'
+                        text: 'Cerca luogo',
+                        bounds: bounds
                     }
                 );
                 map.addControl(osmGeocoder);

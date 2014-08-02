@@ -218,6 +218,10 @@ html, body, #map {
 	border-bottom:1px solid rgba(0,0,0,0.25);
 	text-align:center;
 }
+.menu-ui a.disabled {
+    color: #b0b0b0;
+    cursor: default;
+}
 .menu-ui a:first-child {
 	border-radius:3px 3px 0 0;
 }
@@ -228,6 +232,10 @@ html, body, #map {
 .menu-ui a:hover {
 	background:#f8f8f8;
 	color:#404040;
+}
+.menu-ui a.disabled:hover {
+	background:#fff;
+    color: #b0b0b0;
 }
 .menu-ui a.active {
 	background:#3887BE;

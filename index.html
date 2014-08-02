@@ -85,8 +85,8 @@
                         for (var k in props.data) {
                             if (props.data.hasOwnProperty(k) && props.data[k] != '0' && k.charAt(0) == k.charAt(0).toUpperCase()) {
                                 table += '<tr>' + 
-                                    '<td>' + k + '</td>' +
-                                    '<td>' + (parseInt(props.data[k]) || props.data[k]) + '</td>' + 
+                                    '<td>' + (k.indexOf('Totale') > -1 ? '<b>'+k+'</b>' : k) + '</td>' +
+                                    '<td>' + (k.indexOf('Totale') > -1 ? '<b>'+parseInt(props.data[k])+'</b>' : (parseInt(props.data[k]) || props.data[k])) + '</td>' + 
                                     '</tr>';
                             }
                         }

@@ -123,7 +123,9 @@ html, body, #map {
 }
 
 #buttons {
-    margin-right: 145px;
+    position: fixed;
+    left: 120px;
+    bottom: -5px;
 }
 #buttons > * {
     margin-left: 5px !important;

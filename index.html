@@ -4,14 +4,22 @@
         <title>Mappa dei beni confiscati - Confiscati Bene</title>
 	    <meta charset="utf-8" />
     	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.load.min.js"></script>
+        <link rel="shortcut icon" href="http://viz.confiscatibene.it/anbsc/choropleth/img/favicon.ico" />
+        <meta property="og:site_name" content="Confiscati Bene" />
+        <meta property="og:locale" content="it_it" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Confiscati Bene" />
+        <meta property="og:url" content="http://www.confiscatibene.it" />
+        <meta property="og:description" content="Confiscati Bene è un progetto partecipativo per favorire la trasparenza, il riuso e la valorizzazione dei beni confiscati alle mafie, attraverso la raccolta, l'analisi dei dati e il monitoraggio dei beni stessi. Alla sua costruzione e implementazione partecipano giornalisti, attivisti e tecnologi: ognuno di noi mette a disposizione la propria specifica competenza per rispondere ad alcune domande sullo stato e sulla gestione dei beni confiscati in Italia alla criminalità organizzata: Quanti sono? Dove sono? Quanto valgono? Come vengono riutilizzati?" />
+        <meta property="og:image" content="http://viz.confiscatibene.it/anbsc/choropleth/img/logocb.png" />
+        <script src="js/head/head.load.min.js"></script>
         <script type="text/javascript">
-            head.load("http://d3js.org/queue.v1.min.js")
-                .load("http://d3js.org/d3.v3.min.js")
+            head.load("js/queue/queue.v1.min.js")
+                .load("js/d3/d3.v3.min.js")
                 .load("js/geostats/geostats.min.js")
                 .load("js/colorbrewer/colorbrewer.js")
                 .load([
-                    "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js", "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css",
+                    "js/leaflet/leaflet.js", "js/leaflet/leaflet.css",
                     "js/spin-control/leaflet.spin.js", "js/spin-control/spin.min.js",
                     "js/osm-geocoder/Control.OSMGeocoder.js", "js/osm-geocoder/Control.OSMGeocoder.css"
                 ])
@@ -62,11 +70,11 @@
                             azResId = '8b7e12f1-6484-47f0-9cf6-88b446297dbc';
 
                         var buttons = [
-                            '<img src="img/twitter.png" id="ssb-twitter">',
-                            '<img src="img/facebook.png" id="ssb-facebook">',
-                            '<img src="img/gplus.png" id="ssb-gplus">',
-                            '<img src="img/linkedin.png" id="ssb-linkedin">',
-                            '<img src="img/email.png" id="ssb-email">'
+                            '<a href="http://twitter.com/share?url=http://viz.confiscatibene.it'+encodeURIComponent(Arg.url(parameters))+'&text='+encodeURIComponent("Gli immobili e le aziende #confiscatibene di "+props[geo[territorio].name]+" via @confiscatibene")+'" target="_blank"><img src="img/twitter.png" id="ssb-twitter"></a>',
+                            '<a href="http://www.facebook.com/sharer.php?u=http://viz.confiscatibene.it'+encodeURIComponent(Arg.url(parameters))+'" target="_blank"><img src="img/facebook.png" id="ssb-facebook"></a>',
+                            '<a href="https://plus.google.com/share?url=http://viz.confiscatibene.it'+encodeURIComponent(Arg.url(parameters))+'" target="_blank"><img src="img/gplus.png" id="ssb-gplus"></a>',
+                            '<a href="http://www.linkedin.com/shareArticle?mini=true&url=http://viz.confiscatibene.it'+encodeURIComponent(Arg.url(parameters))+'" target="_blank"><img src="img/linkedin.png" id="ssb-linkedin"></a>',
+                            '<a href="mailto:?Subject=Confiscati Bene a '+encodeURIComponent(props[geo[territorio].name])+'&Body=Gli immobili e le aziende %23confiscatibene di '+encodeURIComponent(props[geo[territorio].name])+': http://viz.confiscatibene.it'+encodeURIComponent(Arg.url(parameters))+'" target="_blank"><img src="img/email.png" id="ssb-email"></a>'
                         ];
 
                         var table = '<table class="zebra">' + 
@@ -97,7 +105,7 @@
                         this._div.innerHTML += table;
 
                         var imPath = apiPath + 
-                            "?resource_id=" + imResId + "&limit=1000&filters[" + 
+                            "?resource_id=" + imResId + "&limit=5000&filters[" + 
                             filterKey + 
                             "]=" + 
                             filterValue;
@@ -115,7 +123,7 @@
                             });
                         });
                         var azPath = apiPath + 
-                            "?resource_id=i" + azResId + "&limit=1000&filters[" + 
+                            "?resource_id=i" + azResId + "&limit=5000&filters[" + 
                             filterKey + 
                             "]=" + 
                             filterValue;
@@ -135,6 +143,7 @@
                         d3.select(this._div).select("img#close-cross")
                             .style("display", "block")
                             .on("click", function() {
+                                delete parameters.i;
                                 info.update();
                             });
                     } else {
@@ -148,7 +157,7 @@
                 /*** Logo ***/
                 var logo = L.control({position: 'topleft'});
                 logo.onAdd = function(map) {
-                    var img = L.DomUtil.create('img');
+                    var img = L.DomUtil.create('img','logo');
                     img.setAttribute('id','logo');
                     img.setAttribute('src','img/logocb.png');
                     return img;
@@ -230,6 +239,7 @@
 	    	    function zoomToFeature(e) {
 		    	    //map.fitBounds(e.target.getBounds());
 		        	var layer = e.target;
+                    parameters.i = layer.feature.properties[geo[parameters.dl].id];
     		    	info.update(layer.feature.properties);
         		}
 
@@ -252,8 +262,18 @@
                     { 
                         collapsed: true, 
                         position: 'topleft',
-                        text: 'Cerca luogo',
-                        bounds: bounds
+                        text: 'Cerca il tuo comune',
+                        bounds: bounds,
+                        email: "info@confiscatibene.it",
+                        callback: function (results) {
+                            var bbox = results[0].boundingbox,
+                                first = new L.LatLng(bbox[0], bbox[2]),
+                                second = new L.LatLng(bbox[1], bbox[3]),
+                                bounds = new L.LatLngBounds([first, second]);
+    	    		        info.update();
+                            loadData('comuni');
+                            this._map.fitBounds(bounds);
+                        }
                     }
                 );
                 map.addControl(osmGeocoder);
@@ -300,7 +320,7 @@
                 */
                 parameters = Arg.query();
                 parameters.ls = parameters.ls || d3.keys(defaultGeo);
-                parameters.dl = parameters.dl || parameters.ls[0];
+                parameters.dl = parameters.fl || parameters.dl || parameters.ls[0];
                 if (parameters.t) {
                     parameters.ls = parameters.ls.slice(parameters.ls.indexOf(parameters.dl)+1);
                     parameters.fl = parameters.dl;
@@ -314,6 +334,7 @@
                         data[parameters.ls[i]] = defaultData[parameters.ls[i]];
                     }
                 }
+                if (parameters.t) { parameters.ls.unshift(parameters.fl); }
 
                 // Selettore dei livelli
                 d3.select("nav#menu-ui").selectAll("a")
@@ -327,6 +348,8 @@
                     })
                     .on("click", function(d) {
                         if (geo.hasOwnProperty(d)) {
+                            delete parameters.i;
+                            parameters.dl = d;
     	    		        info.update();
                             loadData(d);
                         }
@@ -374,7 +397,7 @@
                     d3.select("nav#menu-ui a#"+territorio).classed("active", true);
                     geojson.clearLayers();
                     if (!geo[territorio].resource || !data[territorio].resource) {
-                        var limit = 2000,
+                        var limit = 5000,
                             geoPath = 'geo/' + 
                                 (parameters.t ? (territorio + '-' + parameters.t) : territorio) + 
                                 '.js',

@@ -33,13 +33,11 @@
                 var apiPath = '/api/action/datastore/search.json';
                 
                 /*** Inizializzazione della mappa ***/
-                var map = L.map('map');
+                var map = L.map('map',{ maxZoom: 15, minZoom: 4, scrollWheelZoom: false });
         	    var southWest = L.latLng(37.118,6.877),
                     northEast = L.latLng(46.826,18.611),
                 	bounds = L.latLngBounds(southWest, northEast);
                 map.fitBounds(bounds);
-                map.options.maxZoom = 15;
-        	    map.options.minZoom = 4;
                 L.tileLayer (
 	    	        'http://{s}.acetate.geoiq.com/tiles/acetate/{z}/{x}/{y}.png',
                     {

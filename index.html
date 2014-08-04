@@ -21,7 +21,8 @@
                 .load([
                     "js/leaflet/leaflet.js", "js/leaflet/leaflet.css",
                     "js/spin-control/leaflet.spin.js", "js/spin-control/spin.min.js",
-                    "js/osm-geocoder/Control.OSMGeocoder.js", "js/osm-geocoder/Control.OSMGeocoder.css"
+                    "js/osm-geocoder/Control.OSMGeocoder.js", "js/osm-geocoder/Control.OSMGeocoder.css",
+                    "js/label/leaflet.label.js", "js/label/leaflet.label.css",
                 ])
                 .load("js/agnes/agnes.js")
                 .load("js/argjs/arg-min.js")
@@ -213,31 +214,35 @@
         		}
 
                 /*** Gestione degli eventi ***/
-                var geojson;
+                var geojson, label = new L.Label();
 
 	        	function highlightFeature(e) {
-		        	var layer = e.target;
-    		    	layer.setStyle({
-    			    	weight: 5,
+                    var layer = e.target,
+                        props = layer.feature.properties;
+                    
+                    label.setContent(props[geo[parameters.dl].name]+'<br>Beni confiscati: '+props.data[data[parameters.dl].binCol]);
+                    label.setLatLng(layer.getBounds().getCenter());
+                    map.showLabel(label);
+                    
+                    layer.setStyle({
+    			    	weight: 3,
 	    			    color: '#666',
     	    			dashArray: '',
 	    	    		fillOpacity: 0.7
 		    	    });
-
-        			if (!L.Browser.ie && !L.Browser.opera) {
+                    
+                    if (!L.Browser.ie && !L.Browser.opera) {
 	        			layer.bringToFront();
 		        	}
 
-    		    	//info.update(layer.feature.properties);
     	    	}
                 
                 function resetHighlight(e) {
+                    label.close();
     		    	geojson.resetStyle(e.target);
-	    		    //info.update();
     	    	}
 
-	    	    function zoomToFeature(e) {
-		    	    //map.fitBounds(e.target.getBounds());
+	    	    function openInfoWindow(e) {
 		        	var layer = e.target;
                     parameters.i = layer.feature.properties[geo[parameters.dl].id];
     		    	info.update(layer.feature.properties);
@@ -247,7 +252,7 @@
 		        	layer.on({
 			        	mouseover: highlightFeature,
 				        mouseout: resetHighlight,
-    				    click: zoomToFeature
+    				    click: openInfoWindow
     	    		});
 	    	    }
                 

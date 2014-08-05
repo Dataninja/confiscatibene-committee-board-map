@@ -30,7 +30,7 @@
                 .load("css/cb.css", "css/table.css");
 
             head.ready(function() {
-                var apiPath = '/api/action/datastore/search.json';
+                var apiPath = '/api/confiscatibene/action/datastore/search.json';
                 
                 /*** Inizializzazione della mappa ***/
                 var map = L.map('map',{ maxZoom: 15, minZoom: 4, scrollWheelZoom: false });
@@ -41,7 +41,9 @@
                 L.tileLayer (
 	    	        'http://{s}.acetate.geoiq.com/tiles/acetate/{z}/{x}/{y}.png',
                     {
-        	    	    attribution: 'Acetate tileset from GeoIQ',
+                        attribution: 'Acetate tileset from <a href="http://www.geoiq.com/" target="_blank">GeoIQ</a> | ' + 
+                            'Download icons designed by <a href="http://www.flaticon.com/" target="_blank">Flaticon.com</a> | ' + 
+                            'Share icons designed by <a href="http://www.simplesharebuttons.com/" target="_blank">Simple Share Buttons</a>',
                 		opacity: .7
 		            }
                 ).addTo(map);
@@ -54,7 +56,7 @@
 	        		this._div = L.DomUtil.create('div', 'info');
 		        	this.update();
 			        return this._div;
-        		};
+                };
                 info.update = function (props) {
                     var that = this;
                     this._div.innerHTML = '';
@@ -62,13 +64,13 @@
                         var delim = agnes.rowDelimiter(),
                             today = new Date(),
                             stoday = d3.time.format('%Y%m%d')(today),
-                            territorio = d3.select("nav#menu-ui a.active").attr("id"),
+                            territorio = parameters.dl,
                             filterKey = data[territorio].id,
                             filterValue = props[geo[territorio].id],
                             imResId = 'e5b4d63a-e1e8-40a3-acec-1d351f03ee56',
                             azResId = '8b7e12f1-6484-47f0-9cf6-88b446297dbc';
 
-                        var btnTitle = 'Condividi la situazione in ' + props[geo[territorio].name];
+                        var btnTitle = 'Condividi la situazione' + (territorio == 'regioni' ? ' in ' : ' a ') + props[geo[territorio].name];
                         var buttons = [
                             '<a class="ssb" href="http://twitter.com/share?url=http://viz.confiscatibene.it' + 
                                 encodeURIComponent(Arg.url(parameters)) + 
@@ -163,7 +165,6 @@
                             });
                         });
                         d3.select(this._div).select("a#close-cross")
-                            .style("display", "")
                             .on("click", function() {
                                 delete parameters.i;
                                 info.update();
@@ -171,7 +172,6 @@
                             });
                     } else {
                         this._div.innerHTML += 'Mouse su un poligono';
-                        d3.select(this._div).select("a#close-cross").style("display", "none");
                     }
     		    };
                 info.addTo(map);
@@ -225,7 +225,7 @@
                 }
 
         		function style(feature) {
-                    var territorio = d3.select("nav#menu-ui a.active").attr("id");
+                    var territorio = parameters.dl;
 	        		return {
 		        		weight: 0.3,
 			        	opacity: 1,
@@ -267,7 +267,7 @@
 	    	    function openInfoWindow(e) {
 		        	var layer = e.target;
                     parameters.i = layer.feature.properties[geo[parameters.dl].id];
-    		    	info.update(layer.feature.properties);
+                    info.update(layer.feature.properties);
         		}
 
 	        	function onEachFeature(feature, layer) {
@@ -378,7 +378,7 @@
                         if (geo.hasOwnProperty(d)) {
                             delete parameters.i;
                             parameters.dl = d;
-    	    		        info.update();
+                            info.update();
                             loadData(d);
                         }
                     })

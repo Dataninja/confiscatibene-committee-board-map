@@ -18,6 +18,16 @@ html, body, #map {
   display: none;
 }
 
+.leaflet-control {
+    float: none !important;
+}
+.leaflet-control-attribution {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    margin: 0 !important;
+}
+
 .leaflet-control-layers label {
   font-weight: normal;
   margin-bottom: 0px;
@@ -33,6 +43,24 @@ html, body, #map {
 .leaflet-control-layers-group label {
   padding-left: .5em;
 }
+
+.leaflet-bottom .leaflet-control {
+    margin-bottom: 10px;
+}
+.leaflet-bottom.leaflet-right .leaflet-control {
+    margin-bottom: 20px;
+}
+
+div.leaflet-top.leaflet-left > *, div.leaflet-bottom.leaflet-left > *, div.leaflet-bottom.leaflet-right > * {
+    display: inline-block;
+}
+div.leaflet-top.leaflet-left > *, div.leaflet-bottom.leaflet-right > * {
+    vertical-align: middle;
+}
+div.leaflet-bottom.leaflet-left > * {
+    vertical-align: bottom;
+}
+
 .table {
   margin-bottom: 0px;
 }
@@ -122,11 +150,6 @@ html, body, #map {
   height:50px;
 }
 
-#buttons {
-    position: fixed;
-    left: 120px;
-    bottom: -5px;
-}
 #buttons > * {
     margin-left: 5px !important;
     margin-right: 5px !important;
@@ -160,9 +183,6 @@ html, body, #map {
 }
 
 #logo {
-    position: relative;
-    bottom: 64px;
-    left: 116px;
     height: 55px;
 }
 .legend {
@@ -177,17 +197,8 @@ html, body, #map {
 	margin-right: 8px;
 	opacity: 0.7;
 }
-.leaflet-control-geocoder {
-	position:relative;
-	bottom:190px;
-    left:264px;
-}
 .menu-ui {
 	background:#fff;
-	position:relative;
-	bottom:132px;
-    left:36px;
-	z-index:1;
 	border-radius:3px;
 	width:70px;
 	border:1px solid rgba(0,0,0,0.4);

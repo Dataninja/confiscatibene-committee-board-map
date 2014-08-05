@@ -57,7 +57,7 @@
         		};
                 info.update = function (props) {
                     var that = this;
-                    this._div.innerHTML = '<img id="close-cross" src="img/close.png" />';
+                    this._div.innerHTML = '';
                     if (props) {
                         var delim = agnes.rowDelimiter(),
                             today = new Date(),
@@ -68,30 +68,53 @@
                             imResId = 'e5b4d63a-e1e8-40a3-acec-1d351f03ee56',
                             azResId = '8b7e12f1-6484-47f0-9cf6-88b446297dbc';
 
+                        var btnTitle = 'Condividi la situazione in ' + props[geo[territorio].name];
                         var buttons = [
-                            '<a href="http://twitter.com/share?url=http://viz.confiscatibene.it'+encodeURIComponent(Arg.url(parameters))+'&text='+encodeURIComponent("Gli immobili e le aziende #confiscatibene di "+props[geo[territorio].name]+" via @confiscatibene")+'" target="_blank"><img src="img/twitter.png" id="ssb-twitter"></a>',
-                            '<a href="http://www.facebook.com/sharer.php?u=http://viz.confiscatibene.it'+encodeURIComponent(Arg.url(parameters))+'" target="_blank"><img src="img/facebook.png" id="ssb-facebook"></a>',
-                            '<a href="https://plus.google.com/share?url=http://viz.confiscatibene.it'+encodeURIComponent(Arg.url(parameters))+'" target="_blank"><img src="img/gplus.png" id="ssb-gplus"></a>',
-                            '<a href="http://www.linkedin.com/shareArticle?mini=true&url=http://viz.confiscatibene.it'+encodeURIComponent(Arg.url(parameters))+'" target="_blank"><img src="img/linkedin.png" id="ssb-linkedin"></a>',
-                            '<a href="mailto:?Subject=Confiscati Bene a '+encodeURIComponent(props[geo[territorio].name])+'&Body=Gli immobili e le aziende %23confiscatibene di '+encodeURIComponent(props[geo[territorio].name])+': http://viz.confiscatibene.it'+encodeURIComponent(Arg.url(parameters))+'" target="_blank"><img src="img/email.png" id="ssb-email"></a>'
+                            '<a class="ssb" href="http://twitter.com/share?url=http://viz.confiscatibene.it' + 
+                                encodeURIComponent(Arg.url(parameters)) + 
+                                '&text=' + encodeURIComponent("Gli immobili e le aziende #confiscatibene di "+props[geo[territorio].name]+" via @confiscatibene") + 
+                                '" target="_blank" title="'+btnTitle+' su Twitter"><img src="img/twitter.png" id="ssb-twitter"></a>',
+                            '<a class="ssb" href="http://www.facebook.com/sharer.php?u=http://viz.confiscatibene.it' + 
+                                encodeURIComponent(Arg.url(parameters)) + 
+                                '" target="_blank" title="'+btnTitle+' su Facebook"><img src="img/facebook.png" id="ssb-facebook"></a>',
+                            '<a class="ssb" href="https://plus.google.com/share?url=http://viz.confiscatibene.it' + 
+                                encodeURIComponent(Arg.url(parameters)) + 
+                                '" target="_blank" title="'+btnTitle+' su Google Plus"><img src="img/gplus.png" id="ssb-gplus"></a>',
+                            '<a class="ssb" href="http://www.linkedin.com/shareArticle?mini=true&url=http://viz.confiscatibene.it' + 
+                                encodeURIComponent(Arg.url(parameters)) + 
+                                '" target="_blank" title="'+btnTitle+' su LinkedIn"><img src="img/linkedin.png" id="ssb-linkedin"></a>',
+                            '<a class="ssb" href="mailto:?Subject=Confiscati Bene a ' + 
+                                encodeURIComponent(props[geo[territorio].name]) + 
+                                '&Body=Gli immobili e le aziende %23confiscatibene di ' + 
+                                encodeURIComponent(props[geo[territorio].name]) + 
+                                ': http://viz.confiscatibene.it' + 
+                                encodeURIComponent(Arg.url(parameters)) + 
+                                '" target="_blank" title="'+btnTitle+' per email"><img src="img/email.png" id="ssb-email"></a>'
+                        ];
+
+                        var dnlBtn = [
+                            '<a id="a-immobili" class="dnl" href="#" title="Scarica l\'elenco degli immobili"><img src="img/house109-dnl.png" /></a>',
+                            '<a id="a-aziende" class="dnl" href="#" title="Scarica l\'elenco delle aziende"><img src="img/factory6-dnl.png" /></a>'
                         ];
 
                         var table = '<table class="zebra">' + 
                             '<thead>' + 
-                            '<tr><th colspan="2" class="rossobc">' +
-                            '<span>' + props[geo[territorio].name] + '</span>' + 
-                            '<span id="ssb">' + buttons.join(" ") + '</span>' +
-                            '</th></tr>' + 
+                            '<tr>' + 
+                            '<th>' + dnlBtn.join("&nbsp;") + "&nbsp;&nbsp;" + buttons.join("&nbsp;") + '</th>' + 
+                            '<th style="text-align:right;"><a id="close-cross" href="#" title="Chiudi"><img src="img/close.png" /></a></th></tr>' + 
+                            '<tr>' + 
+                            '<th colspan="2" class="rossobc">' + props[geo[territorio].name] + '</th>' +
+                            '</tr>' + 
                             '</thead>' + 
                             '<tfoot>' + 
-                            '<tr><td colspan="2">' + 
-                            'Scarica l\'elenco degli <a href="#" id="a-immobili">immobili</a> e delle <a href="#" id="a-aziende">aziende</a>.' + 
+                            '<tr><td colspan="2" style="text-align:right;font-size: smaller;">' + 
+                            'Creative Commons Attribution <a href="http://creativecommons.org/licenses/by/3.0/it/" target="_blank">CC-BY 3.0 Italia</a>' + 
                             '</td></tr>' + 
                             '</tfoot>' + 
                             '<tbody>';
 
                         for (var k in props.data) {
-                            if (props.data.hasOwnProperty(k) && props.data[k] != '0' && k.charAt(0) == k.charAt(0).toUpperCase()) {
+                            if (props.data.hasOwnProperty(k) && props.data[k] != '0' && k.charAt(0) == k.charAt(0).toUpperCase() && k.slice(0,2) != "Id") {
                                 table += '<tr>' + 
                                     '<td>' + (k.indexOf('Totale') > -1 ? '<b>'+k+'</b>' : k) + '</td>' +
                                     '<td>' + (k.indexOf('Totale') > -1 ? '<b>'+parseInt(props.data[k])+'</b>' : (parseInt(props.data[k]) || props.data[k])) + '</td>' + 
@@ -139,15 +162,16 @@
                                 }
                             });
                         });
-                        d3.select(this._div).select("img#close-cross")
-                            .style("display", "block")
+                        d3.select(this._div).select("a#close-cross")
+                            .style("display", "")
                             .on("click", function() {
                                 delete parameters.i;
                                 info.update();
+                                return false;
                             });
                     } else {
                         this._div.innerHTML += 'Mouse su un poligono';
-                        d3.select(this._div).select("img#close-cross").style("display", "none");
+                        d3.select(this._div).select("a#close-cross").style("display", "none");
                     }
     		    };
                 info.addTo(map);
@@ -291,10 +315,11 @@
                 };
                 legend.update = function(territorio) {
                     var grades = data[territorio].ranges;
-                    this._div.innerHTML = '<h4>Legenda</h4>';
+                    this._div.innerHTML = '<h4>Legenda</h4><br>';
                     for (var i=0; i<grades.length; i++) {
                         this._div.innerHTML += '<i style="background:' + colorbrewer.Reds[grades.length][i] + '"></i> ' + grades[i] + '<br />';
-    			    }
+                    }
+                    this._div.innerHTML += '<br>Numero totale<br>di beni confiscati';
     	    	};
                 legend.addTo(map);
                 /*** ***/

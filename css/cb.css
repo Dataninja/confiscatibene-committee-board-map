@@ -155,25 +155,8 @@ html, body, #map {
 	margin: 0 0 5px;
 	color: #777;
 }
-.info img#close-cross {
+.info a.ssb img, .info a.dnl img, .info a#close-cross img {
     width: 20px;
-    position: absolute;
-    right: 12px;
-    top: 12px;
-    cursor: pointer;
-}
-
-.info table th.rossobc > span {
-    display: inline-block;
-    vertical-align: middle;
-}
-#ssb {
-    margin-left: 20px;
-    margin-right: 25px;
-}
-#ssb img {
-    width: 20px;
-    cursor: pointer;
 }
 
 #logo {

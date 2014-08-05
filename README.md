@@ -3,5 +3,6 @@ confiscatibene-choropleth
 
 Maps for #confiscatibene project.
 
-Based on Andrea Borruso's work https://github.com/aborruso/beni-confiscati-aperti/tree/gh-pages/coroplete
-and some open-source libraries: d3js, leaflet (including a couple of plugins), geostats, colorbrewer, headjs, queuejs, agnesjs, FileSaverjs, Blobjs, Argjs.
+Interactive map showing MPs in the "antimafia" committee board thanks to the official SPARQL API of Italian Camera and Senato and
+based on #confiscatibene choropleth https://github.com/Dataninja/confiscatibene-choropleth.
+

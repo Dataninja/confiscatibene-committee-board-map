@@ -199,7 +199,7 @@
                             for (var i=0; i<people.length; i++) {
                                 slidesHtml += '<div class="slide ' + people[i].ramo + '">' + 
                                     '<a href="' + people[i].link + '" target="_blank"><img src="' + people[i].foto + '"></a>' + 
-                                    people[i].nome + ' ' + people[i].cognome + '<br>' + people[i].partito + '<br>' + people[i].carica + 
+                                    '<b>' + people[i].nome + ' ' + people[i].cognome + '</b><br>' + people[i].partito + '<br>' + people[i].carica + 
                                     '</div>';
                             }
                             slidesHtml += '</div>';
@@ -236,11 +236,15 @@
                                     link: { camera: 0, senato: 0, parse: function(el) { return el || "#"; } },
                                     nome: { camera: 1, senato: 1, parse: function(el) { return el.charAt(0).toUpperCase() + el.slice(1).toLowerCase(); } },
                                     cognome: { camera: 2, senato: 2, parse: function(el) { return el.charAt(0).toUpperCase() + el.slice(1).toLowerCase(); } },
-                                    inizioAff: { camera: 3, senato: 3, parse: function(el) { return (el ? d3.time.format("%Y%m%d").parse(el.replace("-","")) : ""); } },
-                                    fineAff: { camera: 4, senato: 4, parse: function(el) { return (el ? d3.time.format("%Y%m%d").parse(el.replace("-","")) : ""); } },
-                                    carica: { camera: 5, senato: 5, parse: function(el) { return el || ""; } },
-                                    partito: { camera: 8, senato: 6, parse: function(el) { return el.slice(0,el.length-12); } },
-                                    collegio: { camera: 9, senato: 7, parse: function(el) { return el.split(" ")[0]; } },
+                                    inizioAff: { camera: 3, senato: 3, parse: function(el) { return (el ? d3.time.format("%Y%m%d").parse(el.split("-").join("")) : ""); } },
+                                    fineAff: { camera: 4, senato: 4, parse: function(el) { return (el ? d3.time.format("%Y%m%d").parse(el.split("-").join("")) : ""); } },
+                                    carica: { camera: 5, senato: 5, parse: function(el) { return (el ? el.toUpperCase() : "MEMBRO"); } },
+                                    partito: { camera: 8, senato: 6, parse: function(el) { 
+                                            var el = el.replace(/ \(.*$/,"").replace(/-.*$/,"").trim(); 
+                                            return el.charAt(0).toUpperCase() + el.slice(1).toLowerCase(); 
+                                        } 
+                                    },
+                                    collegio: { camera: 9, senato: 7, parse: function(el) { return el.replace(/ \d$/,""); } },
                                     foto: { camera: 10, senato: 8, parse: function(el) { return el || 'img/m'+(Math.random()<0.5?'x':'s')+'x.png'; } }
                                 };
                                 
@@ -248,10 +252,10 @@
                                 var person = { ramo: 'camera' };
                                 for (var k in pTemplate) {
                                     if (pTemplate.hasOwnProperty(k)) {
-                                        if (dataDep[i].hasOwnProperty(depjs.head.vars[pTemplate[k].camera])) {
+                                        if (dataDep[i].hasOwnProperty(depjs.head.vars[pTemplate[k][person.ramo]])) {
                                             person[k] = pTemplate[k].parse(dataDep[i][depjs.head.vars[pTemplate[k][person.ramo]]].value);
                                         } else {
-                                            person[k] = "";
+                                            person[k] = pTemplate[k].parse("");
                                         }
                                     }
                                 }
@@ -262,15 +266,22 @@
                                 var person = { ramo: 'senato' };
                                 for (var k in pTemplate) {
                                     if (pTemplate.hasOwnProperty(k)) {
-                                        if (dataSen[i].hasOwnProperty(depjs.head.vars[pTemplate[k].senato])) {
-                                            person[k] = pTemplate[k].parse(dataSen[i][depjs.head.vars[pTemplate[k][person.ramo]]].value);
+                                        if (dataSen[i].hasOwnProperty(senjs.head.vars[pTemplate[k][person.ramo]])) {
+                                            person[k] = pTemplate[k].parse(dataSen[i][senjs.head.vars[pTemplate[k][person.ramo]]].value);
                                         } else {
-                                            person[k] = "";
+                                            person[k] = pTemplate[k].parse("");
                                         }
                                     }
                                 }
-                                console.log(person);
                                 data[parameters.dl].board.push(person);
+                            }
+                            data[parameters.dl].board.sort(function(a,b) { return a.link>b.link ? -1 : a.link<b.link ? 1 : 0; });
+                            for(var i=1; i<data[parameters.dl].board.length; ){
+                                if(data[parameters.dl].board[i-1].link == data[parameters.dl].board[i].link){
+                                    data[parameters.dl].board.splice(i, 1);
+                                } else {
+                                    i++;
+                                }
                             }
                             data[parameters.dl].board.sort(function(a,b) { return a.inizioAff>b.inizioAff ? -1 : a.inizioAff<b.inizioAff ? 1 : 0; });
                             gallery.draw(props);

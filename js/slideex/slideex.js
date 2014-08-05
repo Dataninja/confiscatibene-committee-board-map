@@ -9,16 +9,16 @@ var SlideEx = {
     slidesControlsID: "slides-controls",
     slideDelay: 3000,
     slideAnimationInterval: 20,
-    slideTransitionSteps: 10,
-    slideTransStep: 0,
-    transTimeout: 0,
-    crtSlideIndex: 1
+    slideTransitionSteps: 10
 };
 
 SlideEx.setUpSlideShow = function() {
     // collect the slides and the controls
     var that = this;
         
+    this.slideTransStep = 0;
+    this.transTimeout = 0;
+    this.crtSlideIndex = 1;
     this.slidesCollection = document.getElementById(this.slidesContainerID).children;
     this.slidesControllersCollection = document.getElementById(this.slidesControlsID).children;
     this.totalSlides = this.slidesCollection.length;
@@ -116,5 +116,18 @@ SlideEx.transComplete = function() {
  
     // highlight the control for the next slide
     document.getElementById("slide-control-" + this.crtSlideIndex).className = this.slideHighlightClass;
+}
+
+SlideEx.clearSlideShow = function() {
+    clearTimeout(this.transTimeout);
+    delete this.crtSlide;
+    delete this.crtSlideIndex;
+    delete this.nextSlide;
+    delete this.nextSlideIndex;
+    delete this.slideTransStep;
+    delete this.slidesCollection;
+    delete this.slidesControllersCollection;
+    delete this.totalSlides;
+    delete this.transTimeout;
 }
 

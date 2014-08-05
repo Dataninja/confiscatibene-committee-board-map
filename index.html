@@ -30,7 +30,7 @@
                 .load("css/cb.css", "css/table.css");
 
             head.ready(function() {
-                var apiPath = '/api/action/datastore/search.json';
+                var apiPath = '/api/confiscatibene/action/datastore/search.json';
                 
                 /*** Inizializzazione della mappa ***/
                 var map = L.map('map',{ maxZoom: 15, minZoom: 4, scrollWheelZoom: false });
@@ -48,13 +48,81 @@
                 map.spin(true);
                 /*** ***/
 
+                /*** Gestione della galleria dei membri delle commissioni ***/
+                var gallery = L.control({position: 'topleft'});
+                gallery.onAdd = function(map) {
+                    this._div = L.DomUtil.create('div', 'gallery');
+                    return this._div;
+                };
+                gallery.draw = function(props) {
+                    var regName = props[geo[parameters.dl].name],
+                        regId = props[geo[parameters.dl].id];
+                    console.log(data[parameters.dl].board);
+                };
+                gallery.update = function (props) {
+                    console.log("Query camera e senato");
+                    var qDep =
+                            '/api/camera/sparql?default-graph-uri=&query=%0D%0Aselect+distinct+%3Fdeputato+%3Fnome+%3Fcognome+%3FinizioAfferenza+%3FfineAfferenza+%3Fcarica+%3FstartCarica+%3FendCarica+%3FnomeGruppo+%3Fcollegio+%3Ffoto+%0D%0A%0D%0Awhere+%7B%0D%0A%23%23+seleziono+l%27organo%0D%0A%0D%0A+++%3Fo+ocd%3Arif_leg+%3Chttp%3A%2F%2Fdati.camera.it%2Focd%2Flegislatura.rdf%2Frepubblica_17%3E.%0D%0A+++%3Fo+a+ocd%3Aorgano%3B+dc%3Atitle+%3Fdenominazione%3B++ocd%3AstartDate+%3Fstart+.%0D%0A+++FILTER%28REGEX%28%3Fdenominazione%2C%27mafi%5Bae%5D%27%2C%27i%27%29%29%0D%0A%0D%0A%23%23+e+i+suoi+membri+deputati%0D%0A%0D%0A+++%3Fo+ocd%3AhaMembro+%3Fm.+%0D%0A+++%3Fm+ocd%3Arif_deputato+%3Fdeputato.%0D%0A+++%3Fm+ocd%3AstartDate+%3FinizioAfferenza.%0D%0A+++OPTIONAL+%7B%3Fm+ocd%3AendDate+%3FfineAfferenza%7D.%0D%0A%0D%0A%23%23+anagrafe+dei+deputati%0D%0A%0D%0A+++%3Fdeputato+foaf%3Asurname+%3Fcognome.+%0D%0A+++%3Fdeputato+foaf%3AfirstName+%3Fnome.%0D%0A+++%3Fdeputato+foaf%3Adepiction+%3Ffoto.%0D%0A++++%0D%0A%23%23+collegio+di+elezione%0D%0A%0D%0A+++%3Fdeputato+ocd%3Arif_mandatoCamera+%3Fmandato.++%0D%0A+++%3Fmandato+ocd%3Arif_elezione+%3Felezione.++%0D%0A+++%3Felezione+dc%3Acoverage+%3Fcollegio.%0D%0A%0D%0A%23%23+adesione+attuale+gruppo%0D%0A%0D%0A+++%3Fdeputato+a+ocd%3Adeputato%3B+ocd%3Aaderisce+%3Faderisce.%0D%0A+++%3Fdeputato+foaf%3Adepiction+%3Fdepiction.%0D%0A+++%3Faderisce+ocd%3Arif_gruppoParlamentare+%3Fgruppo.%0D%0A+++%3Fgruppo+dc%3Atitle+%3FnomeGruppo.%0D%0A+++FILTER+NOT+EXISTS%7B%3Faderisce+ocd%3AendDate+%3FfineAdesione%7D%0D%0A%0D%0A%23%23+carica%0D%0AOPTIONAL%7B++++%0D%0A++%3Fdeputato+ocd%3Arif_ufficioParlamentare+%3Fup.%0D%0A++%3Fup+ocd%3Arif_organo+%3Fo.%0D%0A++%3Fup+ocd%3Acarica+%3Fcarica%3B+ocd%3AstartDate+%3FstartCarica.%0D%0A++OPTIONAL%7B%3Fup+ocd%3AendDate+%3FendCarica%7D%0D%0A%7D%0D%0A%0D%0A%7D+LIMIT+1000+%0D%0A&format=application%2Fjson&timeout=0&debug=on',
+                        qSen =
+                            '/api/senato/sparql?default-graph-uri=&query=PREFIX+osr%3A+%3Chttp%3A%2F%2Fdati.senato.it%2Fosr%2F%3E%0D%0APREFIX+ocd%3A+%3Chttp%3A%2F%2Fdati.camera.it%2Focd%2F%3E%0D%0A%0D%0Aselect+distinct+%3Fsenatore+%3Fnome+%3Fcognome+%3FinizioAfferenza+%3FfineAfferenza+%3Fcarica+%3FnomeGruppo+%3Fcollegio+%3Ffoto+where+%7B%0D%0A%0D%0A%23%23+tutti+i+senatori+della+17%0D%0A+++%0D%0A+++%3Fsenatore+a+osr%3ASenatore%3B+osr%3Amandato+%3Fmandato.%0D%0A+++%3Fmandato+osr%3Alegislatura+%2717%27%5E%5Exsd%3Ainteger.%0D%0A%0D%0A%23%23+afferenza+alla+commissione%0D%0A+++%0D%0A+++%3Fsenatore+osr%3Aafferisce+%3Fafferenza.%0D%0A+++%3Fafferenza+osr%3Ainizio+%3FinizioAfferenza.%0D%0A+++OPTIONAL%7B%3Fafferenza+osr%3Afine+%3FfineAfferenza.%7D%0D%0A+++%3Fafferenza+osr%3Acommissione+%3Fcommissione.%0D%0A+++%3Fafferenza+osr%3Acarica+%3Fcarica.+%0D%0A%0D%0A%23%23+circoscrivo+alla+sola+commissione+antimafia+della+17%0D%0A+++%0D%0A+++%3Fcommissione+osr%3Adenominazione+%3Fdenominazione.%0D%0A+++%3Fdenominazione+osr%3Atitolo+%3Fdizione.%0D%0A+++%3Fdenominazione+osr%3Ainizio+%3FcostituzioneCommissione.%0D%0A+++FILTER%28REGEX%28%3Fdizione%2C%27mafi%5Beao%5D%27%2C%27i%27%29%29%0D%0A%0D%0A%23%23+imposto+un+filtro+sulle+date+perch%C3%A9+c%27%C3%A8+%0D%0A%23%23+una+sola+commissione+in+tutte+le+legislature%0D%0A+++%0D%0A+++FILTER+NOT+EXISTS%7B%3Fdenominazione+osr%3Afine+%3FchiusuraDenominazione%7D%0D%0A+++FILTER%28%3FinizioAfferenza+%3E%3D+%3FcostituzioneCommissione+%29%0D%0A%0D%0A%23%23+anagrafica+senatori%0D%0A+++%0D%0A+++%3Fsenatore+foaf%3AfirstName+%3Fnome.%0D%0A+++%3Fsenatore+foaf%3AlastName+%3Fcognome.%0D%0A+++%3Fsenatore+foaf%3Adepiction+%3Ffoto.%0D%0A%0D%0A%23%23+gruppo+parlamentare+corrente%0D%0A+++%0D%0A+++%3Fgruppo+a+ocd%3AgruppoParlamentare+.%0D%0A+++%3Fgruppo+osr%3Adenominazione+%3FdenominazioneGruppo+.%0D%0A+++%3FdenominazioneGruppo+osr%3Atitolo+%3FnomeGruppo+.%0D%0A+++%3FadesioneGruppo+a+ocd%3AadesioneGruppo+.%0D%0A+++%3FadesioneGruppo+osr%3Agruppo+%3Fgruppo.%0D%0A+++%3Fsenatore+ocd%3Aaderisce+%3FadesioneGruppo.%0D%0A+++FILTER+NOT+EXISTS+%7B+%3FadesioneGruppo+osr%3Afine+%3FfineAdesione+%7D%0D%0A+++FILTER+NOT+EXISTS+%7B+%3FdenominazioneGruppo+osr%3Afine+%3FfineDenominazione+%7D+++%0D%0A%0D%0A+++%0D%0A%23%23+elezione%0D%0A+++%3Fmandato+osr%3AregioneElezione+%3Fcollegio%0D%0A%0D%0A%0D%0A%7D+LIMIT+1000&format=application%2Fjson&timeout=0&debug=on';
+                    queue()
+                        .defer(d3.json, qDep)
+                        //.defer(d3.json, qSen)
+                        .await(function(err, depjs/*, senjs*/) {
+                            var dataDep = depjs.results.bindings,
+                                //dataSen = senjs.results.bindings,
+                                pTemplate = {
+                                    link: { camera: 0, senato: 0 },
+                                    nome: { camera: 1, senato: 1 },
+                                    cognome: { camera: 2, senato: 2 },
+                                    inizioAff: { camera: 3, senato: 3 },
+                                    fineAff: { camera: 4, senato: 4 },
+                                    carica: { camera: 5, senato: 5 },
+                                    partito: { camera: 8, senato: 6 },
+                                    collegio: { camera: 9, senato: 7 },
+                                    foto: { camera: 10, senato: 8 }
+                                };
+                                
+                            for (var i=0; i<dataDep.length; i++) {
+                                var person = { ramo: 'Camera' };
+                                for (var k in pTemplate) {
+                                    if (pTemplate.hasOwnProperty(k)) {
+                                        if (dataDep[i].hasOwnProperty(depjs.head.vars[pTemplate[k].camera])) {
+                                            person[k] = dataDep[i][depjs.head.vars[pTemplate[k].camera]].value;
+                                        } else {
+                                            person[k] = null;
+                                        }
+                                    }
+                                }
+                                data[parameters.dl].board.push(person);
+                            }
+                            
+                            /*for (var i=0; i<dataSen.length; i++) {
+                                var person = { ramo: 'Senato' };
+                                for (var k in pTemplate) {
+                                    if (pTemplate.hasOwnProperty(k)) {
+                                        if (dataSen[i].hasOwnProperty(depjs.head.vars[pTemplate[k].senato])) {
+                                            person[k] = dataSen[i][depjs.head.vars[pTemplate[k].senato]].value;
+                                        } else {
+                                            person[k] = null;
+                                        }
+                                    }
+                                }
+                                data[parameters.dl].board.push(person);
+                            }*/
+                            gallery.draw(props);
+                    });
+                };
+                gallery.addTo(map);
+                /*** ***/
+
                 /*** Gestione dell'infowindow al click ***/
                 var info = L.control({position: 'bottomright'});
         		info.onAdd = function (map) {
 	        		this._div = L.DomUtil.create('div', 'info');
 		        	this.update();
 			        return this._div;
-        		};
+                };
                 info.update = function (props) {
                     var that = this;
                     this._div.innerHTML = '';
@@ -267,7 +335,15 @@
 	    	    function openInfoWindow(e) {
 		        	var layer = e.target;
                     parameters.i = layer.feature.properties[geo[parameters.dl].id];
-    		    	info.update(layer.feature.properties);
+                    info.update(layer.feature.properties);
+                    console.log(parameters);
+                    if (data[parameters.dl].hasOwnProperty('board')) {
+                        if (data[parameters.dl].board.length === 0) {
+                            gallery.update(layer.feature.properties);
+                        } else {
+                            gallery.draw(layer.feature.properties);
+                        }
+                    }
         		}
 
 	        	function onEachFeature(feature, layer) {
@@ -331,7 +407,7 @@
                         'comuni': { id: 'PRO_COM', name: 'NOME_COM', resource: null }
                     },
                     defaultData = {
-                        'regioni': { id: 'IdRegioneISTAT', resourceId: 'e2f0c989-929f-4e4d-87e2-097140f8880f', resource: null, binCol: 'Totale beni', bins: [], ranges: [] },
+                        'regioni': { id: 'IdRegioneISTAT', resourceId: 'e2f0c989-929f-4e4d-87e2-097140f8880f', resource: null, binCol: 'Totale beni', bins: [], ranges: [], board: [] },
                         'province': { id: 'IdProvinciaISTAT', resourceId: 'c18fa1ca-971f-4cfa-92e9-869785260dec', resource: null, binCol: 'Totale beni', bins: [], ranges: [] },
                         'comuni': { id: 'IdComuneISTAT', resourceId: '69b2565e-0332-422f-ad57-b11491e33b08', resource: null, binCol: 'Totale beni', bins: [], ranges: [] }
                     },

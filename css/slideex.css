@@ -1,0 +1,47 @@
+#slideshow
+{
+  width:175px;
+}
+
+#slides
+{
+  height:306px;
+  width: 100%;
+}
+
+.slide
+{
+  height:296px;
+  position:absolute;
+  background:rgba(255,255,255,0.8);
+  color:black;
+  padding: 5px;
+}
+
+#slides-controls
+{
+  background-color:rgba(255,255,255,0.8);
+  margin-left:auto;
+  margin-right:auto;
+  padding:5px;
+  width: 165px;
+  white-space: nowrap;
+  height: 45px;
+  overflow: hidden;
+  overflow-x: scroll;
+}
+
+#slides-controls a
+{
+  display:inline-block;
+  margin:1px;
+}
+
+#slides-controls a:hover, #slides-controls a.highlight
+{
+  background:#eb593c;
+}
+
+#slides-controls a img {
+    width: 22px;
+}
